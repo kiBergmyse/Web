@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>ооааооааЮ?</title>
+
+        <style>
+            .header {
+                font-family: monospace;
+                color: grey;
+                font-size: 22px;
+                background-color: WhiteSmoke;
+                padding-top: 4px;
+            }
+
+            .header > p, h3 {
+                margin-left: 5px;
+            }
+
+            .header::after {
+                content: "";
+                display: block;
+                height: 10px;
+                background-color: grey;
+                margin-top: 5px;
+            }
+
+            h3 {
+                margin: 0;
+                margin-left: 5px;
+                padding: 0;
+            }
+
+            #errorMessage {
+                color: red;
+                margin-left: 10px;
+                font-family: monospace;
+            }
+
+            body {
+                background-color: Gainsboro;
+                margin: 0;
+            }
+
+            .content {
+                display: flex;
+                justify-content: center;
+                align-items: flex-start;
+                margin: 5px auto 0;
+                width: fit-content;
+                max-width: 100%;
+            }
+
+            .main-block {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 5px;
+                flex-shrink: 0;
+                width: 500px;
+            }
+
+            .buttons {
+                box-sizing: border-box;
+                margin: 0;
+                background-color: darkgray;
+                padding: 5px 10px 10px;
+                max-width: 100%;
+                font-size: 20px;
+            }
+
+            .buttons label {
+                font-size: 16px;
+                font-family: monospace;
+            }
+
+            .table {
+                box-sizing: border-box;
+                background-color: grey;
+                width: 330px;
+                padding: 0 15px;
+                margin-left: 4px;
+                overflow-x: auto;
+            }
+
+            td {
+                border: 0.5px solid;
+                text-align: center;
+            }
+
+            .table th:nth-child(5),
+            .table td:nth-child(5) {
+                width: 300px;
+            }
+
+            .graph {
+                width: 500px;
+                max-width: 100%;
+            }
+
+            .graph canvas {
+                display: block;
+                max-width: 100%;
+                height: auto;
+            }
+
+            .controls {
+                display: grid;
+                grid-template-columns: max-content 150px;
+                align-items: center;
+                gap: 8px 12px;
+                margin: 10px 0;
+            }
+
+            .filter_buttons button.active {
+                background-color: darkgrey;
+                color: white;
+            }
+            .filter_buttons button {
+                border-radius: 15px;
+                border: 2px white;
+                background-color: white;
+            }
+
+            #pageInfo {
+                white-space: pre-line;
+                grid-column: 1 / -1;
+                margin-left: 0;
+            }
+
+            @media (max-width: 870px) {
+                .content {
+                    flex-direction: column;
+                    align-items: center;
+                    width: 100%;
+                    box-sizing: border-box;
+                }
+
+                .main-block {
+                    width: 500px;
+                    max-width: 100%;
+                    flex-shrink: 1;
+                }
+
+                .buttons {
+                    width: 100%;
+                }
+
+                .graph {
+                    width: 100%;
+                }
+
+                .table {
+                    width: 330px;
+                    max-width: 100%;
+                    margin-top: 3px;
+                }
+            }
+        </style>
+
+    </head>
+
+    <body>
+        <div class="header">
+            <h3>Вариант 22623</h3>
+            <p>Стариченко Максим Юрьевич</p>
+            <p>P3217</p>
+        </div>
+                <script src="script.js"></script>
+
+        <p id="test"></p>
+
+        <div class="content">
+            <div class="main-block">
+                <form id="pointForm" class="buttons">
+                    <p>
+                        <label>Координата X:</label>
+			<input type="radio" name="x" value="-4"> -4
+                        <input type="radio" name="x" value="-3"> -3
+                        <input type="radio" name="x" value="-2"> -2
+                        <input type="radio" name="x" value="-1"> -1
+                        <input type="radio" name="x" value="0"> 0
+                        <input type="radio" name="x" value="1"> 1
+                        <input type="radio" name="x" value="2"> 2
+                        <input type="radio" name="x" value="3"> 3
+                        <input type="radio" name="x" value="4"> 4
+                    </p>
+
+                    <p>
+                        <label>Координата Y:</label>
+                        <input type="text" name="y">
+                    </p>
+
+                    <p>
+                        <label>R:</label>
+                        <select name="r">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </p>
+
+                    <button type="button" id="checkButton">Проверка</button>
+                    <span id="errorMessage"></span>
+                </form>
+
+                <div class="graph">
+                    <canvas id="maingraph" width="500" height="500"></canvas>
+                </div>
+            </div>
+
+            <div class="table">
+                <div id="Controls" class="controls">
+                    <label for="size">Размер окна:</label>
+                    <input type="number" id="size" min="1" value="10">
+
+                    <label for="pageNumber">Номер страницы:</label>
+                    <input type="number" id="pageNumber" min="1" step="1" value="1">
+
+                    <label>Время:</label>
+                    <div class="filter_buttons">
+                        <button type="button" data-target="timeSort" data-value="1" class="active">Новые</button>
+                        <button type="button" data-target="timeSort" data-value="0">Старые</button>
+                    </div>
+                    <select id="timeSort" hidden>
+                        <option value="1"></option>
+                        <option value="0"></option>
+                    </select>
+
+                    <label>Попадание:</label>
+                    <div class="filter_buttons">
+                        <button type="button" data-target="hitFilter" data-value="all" class="active">Все</button>
+                        <button type="button" data-target="hitFilter" data-value="hit">Да</button>
+                        <button type="button" data-target="hitFilter" data-value="miss">Нет</button>
+                    </div>
+                    <select id="hitFilter" hidden>
+                        <option value="all"></option>
+                        <option value="hit"></option>
+                        <option value="miss"></option>
+                    </select>
+
+                    <label for="rFilter">R:</label>
+                    <select id="rFilter">
+                        <option value="all">Все</option>
+                    </select>
+                    <span id="pageInfo"></span>
+                </div>
+                <table id="mainTable">
+                    <tr>
+                        <th colspan="6">Результаты</th>
+                    </tr>
+                    <tr>
+                        <th>X</th>
+                        <th>Y</th>
+                        <th>R</th>
+                        <th>Попадание</th>
+                        <th>Время</th>
+                        <th>Время работы</th>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </body>
+</html>
