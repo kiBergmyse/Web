@@ -113,25 +113,25 @@ class Checker {
 
 class ResultStorage {
     constructor() {
-        this.key = "results";
+        this.results = [];
     }
 
-    load() {
-        return JSON.parse(localStorage.getItem(this.key)) || [];
+    async load() {
+        const response = await fetch("/fcgi-bin/hello-world.jar");
+        if (!response.ok) {
+            throw new Error("ошибка с историей");
+        }
+        this.results = await response.json();
     }
 
     save(result) {
-        const results = this.load();
-        results.push(result);
-        localStorage.setItem(this.key, JSON.stringify(results));
+        this.results.push(result);
     }
 
     getPage(options) {
         const pageSizeValue = Number(options.pageSize);
         const pageSize = Number.isInteger(pageSizeValue) && pageSizeValue >= 0 ? pageSizeValue : 10;
-        const results = this.load();
-
-        const filtered = results.filter(result => {
+        const filtered = this.results.filter(result => {
             if (options.hitFilter === "hit" && !result.hit) {
                 return false;}
 
@@ -257,7 +257,16 @@ class App {
             this.updateResults();
         });
 
-        this.updateResults();
+        this.loadResults();
+    }
+
+    async loadResults() {
+        try {
+            await this.storage.load();
+            this.updateResults();
+        } catch (e) {
+            this.showError("Не удалось загрузить историю с сервера");
+        }
     }
 
     Filter() {
