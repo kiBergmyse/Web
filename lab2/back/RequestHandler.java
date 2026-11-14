@@ -7,11 +7,17 @@ import java.util.Map;
 
 public class RequestHandler {
 
-    public static void handle(long start) throws IOException {
+    public static void handle(long start, History history) throws IOException {
         String method = System.getProperty("REQUEST_METHOD");
+
+        if ("GET".equals(method)) {
+            HttpResp.send(200, "OK", history.get());
+            return;
+        }
+
         if (!"POST".equals(method)) {
             HttpResp.send(405, "Method Not Allowed",
-                    "{\"error\":\"Метод не POST\"}");
+                    "{\"error\":\"Поддерживается только POST и get\"}");
             return;
         }
 
@@ -74,6 +80,7 @@ public class RequestHandler {
                 + ",\"time\":" + now
                 + ",\"execNanos\":" + execNanos + "}";
 
+        history.add(json);
         HttpResp.send(200, "OK", json);
     }
 
