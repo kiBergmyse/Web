@@ -4,11 +4,13 @@ public class Main {
     public static void main(String[] args) {
         FCGIInterface fcgi = new FCGIInterface();
         History history = new History();
+        Validator validator = new Validator();
+        RequestHandler requestHandler = new RequestHandler(history, validator);
 
         while (fcgi.FCGIaccept() >= 0) {
             long start = System.nanoTime();
             try {
-                Router.handle(start, history);
+                Router.handle(start, history, requestHandler);
             } catch (Exception e) {
                 e.printStackTrace();
                 try {

@@ -6,83 +6,50 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RequestHandler {
+    private final History history;
+    private final Validator validator;
 
-    public static void handleGet(History history) throws IOException {
-        HttpResp.send(200, "OK", history.get());
+    public RequestHandler(History history, Validator validator) {
+        this.history = history;
+        this.validator = validator;
     }
 
-    public static void handlePost(long start, History history) throws IOException {
-
+    public void handle(long start) throws IOException {
         Map<String, String> params = parseBody(readBody());
-        String xs = params.get("x");
-        String ys = params.get("y");
-        String rs = params.get("r");
 
-        if (xs == null || ys == null || rs == null) {
-            HttpResp.send(400, "Bad Request",
-                    "{\"error\":\"Переданы не все данные\"}");
-            return;}
-
-        xs = xs.trim();
-        ys = ys.trim();
-        rs = rs.trim();
-        int x, r;
-        double y;
-
+        Validator.ValidatedInput input;
         try {
-            if (!xs.matches("-?\\d+") ||
-                !rs.matches("\\d+") ||
-                !ys.matches("-?\\d{1,10}(\\.\\d{1,15})?")) {
-                throw new NumberFormatException();}
-
-            x = Integer.parseInt(xs);
-            r = Integer.parseInt(rs);
-            y = Double.parseDouble(ys);
-
-        } catch (NumberFormatException e) {
+            input = validator.validate(
+                    params.get("x"),
+                    params.get("y"),
+                    params.get("r")
+            );
+        } catch (Validator.ValidationException e) {
             HttpResp.send(400, "Bad Request",
-                    "{\"error\":\"Некорректный формат данных\"}");
-            return;}
+                    "{\"error\":\"" + e.getMessage() + "\"}");
+            return;
+        }
 
-        if (x < -4 || x > 4) {
-            HttpResp.send(400, "Bad Request",
-                    "{\"error\":\"X должен быть целым от -4 до 4\"}");
-            return;}
-
-        if (!(y > -5 && y < 5)) {
-            HttpResp.send(400, "Bad Request",
-                    "{\"error\":\"Y должен быть от -5 до 5\"}");
-            return;}
-
-        if (r < 1 || r > 5) {
-            HttpResp.send(400, "Bad Request",
-                    "{\"error\":\"R должен быть целым от 1 до 5 включительно\"}");
-            return;}
-
-        boolean hit = AreaChecker.isHit(x, y, r);
-
+        boolean hit = AreaChecker.isHit(input.getX(), input.getY(), input.getR());
         long now = System.currentTimeMillis();
         long execNanos = System.nanoTime() - start;
 
-        String json = 
-                "{\"x\":" + x 
-                + ",\"y\":" + y 
-                + ",\"r\":" + r
-                + ",\"hit\":" + hit
-                + ",\"time\":" + now
-                + ",\"execNanos\":" + execNanos + "}";
+        Point point = new Point(
+                input.getX(), input.getY(), input.getR(), hit, now, execNanos
+        );
 
-        history.add(json);
-        HttpResp.send(200, "OK", json);
+        history.add(point);
+        HttpResp.send(200, "OK", point.toJson());
     }
 
-    private static byte[] readBody() throws IOException {
+    private byte[] readBody() throws IOException {
         String cl = System.getProperty("CONTENT_LENGTH");
         int len = 0;
 
         try {
             if (cl != null) len = Integer.parseInt(cl.trim());
-        } catch (NumberFormatException ignored) {}
+        } catch (NumberFormatException ignored) {
+        }
 
         if (len < 0 || len > 4096) len = 0;
 
@@ -101,16 +68,17 @@ public class RequestHandler {
         return out.toByteArray();
     }
 
-    private static Map<String, String> parseBody(byte[] body) throws IOException {
+    private Map<String, String> parseBody(byte[] body) throws IOException {
         Map<String, String> map = new HashMap<>();
         String s = new String(body, StandardCharsets.UTF_8);
         if (s.isEmpty()) return map;
+
         for (String pair : s.split("&")) {
             int i = pair.indexOf('=');
-            String k = i < 0 ? pair : pair.substring(0, i);
-            String v = i < 0 ? "" : pair.substring(i + 1);
-            map.put(URLDecoder.decode(k, "UTF-8"),
-                    URLDecoder.decode(v, "UTF-8"));
+            String key = i < 0 ? pair : pair.substring(0, i);
+            String value = i < 0 ? "" : pair.substring(i + 1);
+            map.put(URLDecoder.decode(key, "UTF-8"),
+                    URLDecoder.decode(value, "UTF-8"));
         }
         return map;
     }
