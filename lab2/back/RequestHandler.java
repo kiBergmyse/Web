@@ -7,19 +7,11 @@ import java.util.Map;
 
 public class RequestHandler {
 
-    public static void handle(long start, History history) throws IOException {
-        String method = System.getProperty("REQUEST_METHOD");
+    public static void handleGet(History history) throws IOException {
+        HttpResp.send(200, "OK", history.get());
+    }
 
-        if ("GET".equals(method)) {
-            HttpResp.send(200, "OK", history.get());
-            return;
-        }
-
-        if (!"POST".equals(method)) {
-            HttpResp.send(405, "Method Not Allowed",
-                    "{\"error\":\"Поддерживается только POST и get\"}");
-            return;
-        }
+    public static void handlePost(long start, History history) throws IOException {
 
         Map<String, String> params = parseBody(readBody());
         String xs = params.get("x");

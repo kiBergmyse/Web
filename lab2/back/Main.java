@@ -8,7 +8,7 @@ public class Main {
         while (fcgi.FCGIaccept() >= 0) {
             long start = System.nanoTime();
             try {
-                RequestHandler.handle(start, history);
+                Router.handle(start, history);
             } catch (Exception e) {
                 e.printStackTrace();
                 try {
