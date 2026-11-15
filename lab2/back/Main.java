@@ -14,10 +14,8 @@ public class Main {
             } catch (Exception e) {
                 e.printStackTrace();
                 try {
-                    HttpResp.send(500, "Internal Server Error",
-                            "{\"error\":\"ошибка сервера\"}");
-                } catch (Exception ignored) {
-                }
+                    HttpResp.send(500, "Internal Server Error", new ErrorResp("ошибка сервера"));
+                } catch (Exception ignored) {}
             }
         }
     }
