@@ -26,7 +26,7 @@ public class RequestHandler {
             );
         } catch (Validator.ValidationException e) {
             HttpResp.send(400, "Bad Request",
-                    "{\"error\":\"" + e.getMessage() + "\"}");
+                    new ErrorResp(e.getMessage()));
             return;
         }
 
@@ -39,7 +39,7 @@ public class RequestHandler {
         );
 
         history.add(point);
-        HttpResp.send(200, "OK", point.toJson());
+        HttpResp.send(200, "OK", point);
     }
 
     private byte[] readBody() throws IOException {

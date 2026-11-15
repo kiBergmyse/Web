@@ -223,7 +223,7 @@ class App {
         this.resultTable = new ResultTable("mainTable");
         this.storage = new ResultStorage();
 
-        this.Filter();
+        this.filter();
 
         document.querySelectorAll(".filter_buttons button").forEach(button => {
             button.addEventListener("click", () => {
@@ -269,7 +269,7 @@ class App {
         }
     }
 
-    Filter() {
+    filter() {
         const source = this.form.querySelector('select[name="r"]');
         const values = new Set();
 

@@ -22,15 +22,13 @@ public class Router {
                 requestHandler.handle(start);
                 return;
             case "GET /points":
-                HttpResp.send(200, "OK", history.toJson());
+                HttpResp.send(200, "OK", history.getAll());
                 return;
             default:
                 if ("/check".equals(path) || "/points".equals(path)) {
-                    HttpResp.send(405, "Method Not Allowed",
-                            "{\"error\":\"Метод не поддерживается для этого пути\"}");
+                    HttpResp.send(405, "Method Not Allowed", new ErrorResp("Метод не поддерживается для этого пути"));
                 } else {
-                    HttpResp.send(404, "Not Found",
-                            "{\"error\":\"Маршрут не найден\"}");
+                    HttpResp.send(404, "Not Found", new ErrorResp("Маршрут не найден"));
                 }
         }
     }

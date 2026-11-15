@@ -14,13 +14,4 @@ public class Point {
         this.time = time;
         this.execNanos = execNanos;
     }
-
-    public String toJson() {
-        return "{\"x\":" + x
-                + ",\"y\":" + y
-                + ",\"r\":" + r
-                + ",\"hit\":" + hit
-                + ",\"time\":" + time
-                + ",\"execNanos\":" + execNanos + "}";
-    }
 }
