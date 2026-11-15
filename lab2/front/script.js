@@ -117,7 +117,7 @@ class ResultStorage {
     }
 
     async load() {
-        const response = await fetch("/fcgi-bin/hello-world.jar");
+        const response = await fetch("/points");
         if (!response.ok) {
             throw new Error("ошибка с историей");
         }
@@ -324,7 +324,7 @@ class App {
         this.checkButton.disabled = true;
 
         try {
-            const response = await fetch("/fcgi-bin/hello-world.jar", {
+            const response = await fetch("/check", {
                 method: "POST",
                 headers: {"Content-Type": "application/x-www-form-urlencoded"},
                 body: new URLSearchParams({x: xValue.value, y: yText.replace(",", "."), r: rValue.value}).toString()

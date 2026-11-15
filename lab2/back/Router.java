@@ -1,7 +1,8 @@
 import java.io.IOException;
 
 public class Router {
-    public static void handle(long start, History history) throws IOException {
+    public static void handle(long start, History history, RequestHandler requestHandler)
+            throws IOException {
         String method = System.getProperty("REQUEST_METHOD", "");
         String requestUri = System.getProperty("REQUEST_URI");
         if (requestUri == null || requestUri.isEmpty()) {
@@ -18,10 +19,10 @@ public class Router {
 
         switch (route) {
             case "POST /check":
-                RequestHandler.handlePost(start, history);
+                requestHandler.handle(start);
                 return;
             case "GET /points":
-                RequestHandler.handleGet(history);
+                HttpResp.send(200, "OK", history.toJson());
                 return;
             default:
                 if ("/check".equals(path) || "/points".equals(path)) {
