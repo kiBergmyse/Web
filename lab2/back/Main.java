@@ -3,19 +3,27 @@ import com.fastcgi.FCGIInterface;
 public class Main {
     public static void main(String[] args) {
         FCGIInterface fcgi = new FCGIInterface();
+
+        HttpResp httpResp = new HttpResp();
         History history = new History();
         Validator validator = new Validator();
-        RequestHandler requestHandler = new RequestHandler(history, validator);
+        AreaChecker areaChecker = new AreaChecker();
+        RequestHandler requestHandler = new RequestHandler(
+                history, validator, areaChecker, httpResp
+        );
+        Router router = new Router(history, requestHandler, httpResp);
 
         while (fcgi.FCGIaccept() >= 0) {
             long start = System.nanoTime();
             try {
-                Router.handle(start, history, requestHandler);
+                router.handle(start);
             } catch (Exception e) {
                 e.printStackTrace();
                 try {
-                    HttpResp.send(500, "Internal Server Error", new ErrorResp("ошибка сервера"));
-                } catch (Exception ignored) {}
+                    httpResp.send(500, "Internal Server Error",
+                            new ErrorResp("ошибка сервера"));
+                } catch (Exception ignored) {
+                }
             }
         }
     }

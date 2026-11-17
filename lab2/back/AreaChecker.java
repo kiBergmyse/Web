@@ -1,5 +1,5 @@
 public class AreaChecker {
-    public static boolean isHit(double x, double y, double r) {
+    public boolean isHit(double x, double y, double r) {
         double h = r / 2;
         if (x <= 0 && x >= -h && y >= 0 && y <= h) {
             return true;}

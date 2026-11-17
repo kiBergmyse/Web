@@ -8,10 +8,15 @@ import java.util.Map;
 public class RequestHandler {
     private final History history;
     private final Validator validator;
+    private final AreaChecker areaChecker;
+    private final HttpResp httpResp;
 
-    public RequestHandler(History history, Validator validator) {
+    public RequestHandler(History history, Validator validator,
+                          AreaChecker areaChecker, HttpResp httpResp) {
         this.history = history;
         this.validator = validator;
+        this.areaChecker = areaChecker;
+        this.httpResp = httpResp;
     }
 
     public void handle(long start) throws IOException {
@@ -25,12 +30,11 @@ public class RequestHandler {
                     params.get("r")
             );
         } catch (Validator.ValidationException e) {
-            HttpResp.send(400, "Bad Request",
-                    new ErrorResp(e.getMessage()));
+            httpResp.send(400, "Bad Request", new ErrorResp(e.getMessage()));
             return;
         }
 
-        boolean hit = AreaChecker.isHit(input.getX(), input.getY(), input.getR());
+        boolean hit = areaChecker.isHit(input.getX(), input.getY(), input.getR());
         long now = System.currentTimeMillis();
         long execNanos = System.nanoTime() - start;
 
@@ -39,7 +43,7 @@ public class RequestHandler {
         );
 
         history.add(point);
-        HttpResp.send(200, "OK", point);
+        httpResp.send(200, "OK", point);
     }
 
     private byte[] readBody() throws IOException {

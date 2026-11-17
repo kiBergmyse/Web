@@ -1,8 +1,17 @@
 import java.io.IOException;
 
 public class Router {
-    public static void handle(long start, History history, RequestHandler requestHandler)
-            throws IOException {
+    private final History history;
+    private final RequestHandler requestHandler;
+    private final HttpResp httpResp;
+
+    public Router(History history, RequestHandler requestHandler, HttpResp httpResp) {
+        this.history = history;
+        this.requestHandler = requestHandler;
+        this.httpResp = httpResp;
+    }
+
+    public void handle(long start) throws IOException {
         String method = System.getProperty("REQUEST_METHOD", "");
         String requestUri = System.getProperty("REQUEST_URI");
         if (requestUri == null || requestUri.isEmpty()) {
@@ -22,13 +31,14 @@ public class Router {
                 requestHandler.handle(start);
                 return;
             case "GET /points":
-                HttpResp.send(200, "OK", history.getAll());
+                httpResp.send(200, "OK", history.getAll());
                 return;
             default:
                 if ("/check".equals(path) || "/points".equals(path)) {
-                    HttpResp.send(405, "Method Not Allowed", new ErrorResp("Метод не поддерживается для этого пути"));
+                    httpResp.send(405, "Method Not Allowed",
+                            new ErrorResp("Метод не поддерживается для этого пути"));
                 } else {
-                    HttpResp.send(404, "Not Found", new ErrorResp("Маршрут не найден"));
+                    httpResp.send(404, "Not Found", new ErrorResp("Маршрут не найден"));
                 }
         }
     }
